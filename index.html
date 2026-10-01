@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AcademiaOS — Student & Campus Management System</title>
+  <meta name="description" content="A modern, high-performance web dashboard for managing students, faculty, departments, classrooms, and CGPA records.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><path d='M12 2L1 7l11 5 9-4.09V17h2V7L12 2z'/></svg>">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- NAVIGATION BAR -->
+    <header class="navbar">
+      <div class="nav-content">
+        <!-- Brand -->
+        <a href="#" class="brand" onclick="switchTab('dashboard'); return false;">
+          <div class="brand-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h1>AcademiaOS</h1>
+            <span>Campus Management</span>
+          </div>
+        </a>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs" aria-label="Main Navigation">
+          <button class="tab-btn active" data-tab="dashboard" id="tabDashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Dashboard
+          </button>
+          <button class="tab-btn" data-tab="students" id="tabStudents">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Students
+          </button>
+          <button class="tab-btn" data-tab="lookup" id="tabLookup">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            CGPA Portal
+          </button>
+          <button class="tab-btn" data-tab="staff" id="tabStaff">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Faculty & Staff
+          </button>
+          <button class="tab-btn" data-tab="deptClass" id="tabDeptClass">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="2" width="18" height="20" rx="2" ry="2"/><line x1="9" y1="22" x2="9" y2="2"/><line x1="15" y1="22" x2="15" y2="2"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+            Departments & Classes
+          </button>
+        </nav>
+
+        <!-- Right Controls -->
+        <div class="nav-actions">
+          <!-- Backend Status Indicator -->
+          <div class="status-pill" id="backendStatusPill" title="Click to view Backend Connection settings">
+            <span class="status-dot"></span>
+            <span id="backendStatusText">Connecting...</span>
+          </div>
+
+          <!-- Role / Login Button -->
+          <button class="role-badge" id="roleBadgeBtn" title="Management Login / Status">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span id="activeRoleText">Management Login</span>
+          </button>
+
+          <!-- Theme Toggle -->
+          <button class="icon-btn" onclick="toggleTheme()" title="Toggle Theme" aria-label="Toggle Theme">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="themeIcon">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN APP VIEWS -->
+    <main class="main-content">
+      
+      <!-- ====================================================================
+           1. DASHBOARD VIEW
+           ==================================================================== -->
+      <section id="dashboardView" class="view-section active">
+        <div class="section-header">
+          <div class="section-title">
+            <h2>Campus Analytics & Overview</h2>
+            <p>Real-time metrics, academic performance metrics, and rapid management actions.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-secondary" onclick="loadAllData()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              Refresh
+            </button>
+            <button class="btn btn-primary" onclick="openAddStudentModal()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Enroll Student
+            </button>
+          </div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon indigo">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="stat-info">
+              <h4>Total Students</h4>
+              <div class="stat-value" id="statTotalStudents">0</div>
+              <div class="stat-sub">Active Enrolled</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon emerald">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div class="stat-info">
+              <h4>Average CGPA</h4>
+              <div class="stat-value" id="statAvgCgpa">0.00</div>
+              <div class="stat-sub">Across All Batches</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon violet">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="stat-info">
+              <h4>Faculty & Staff</h4>
+              <div class="stat-value" id="statTotalStaff">0</div>
+              <div class="stat-sub">Teachers & Admin</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon sky">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="2" width="18" height="20" rx="2" ry="2"/><line x1="9" y1="22" x2="9" y2="2"/><line x1="15" y1="22" x2="15" y2="2"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+            </div>
+            <div class="stat-info">
+              <h4>Departments</h4>
+              <div class="stat-value" id="statTotalDepts">0</div>
+              <div class="stat-sub">Academic Branches</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon amber">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <div class="stat-info">
+              <h4>Classrooms</h4>
+              <div class="stat-value" id="statTotalClasses">0</div>
+              <div class="stat-sub">Halls & Labs</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboard Two-Column Grid -->
+        <div class="dashboard-grid">
+          <!-- Recent Enrolled Students -->
+          <div class="dashboard-card">
+            <div class="card-header">
+              <h3>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                Recently Enrolled Students
+              </h3>
+              <button class="btn btn-secondary btn-sm" onclick="switchTab('students')">View All</button>
+            </div>
+            <div class="table-container" style="border:none; box-shadow:none;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Student</th>
+                    <th>Classroom</th>
+                    <th>Department</th>
+                    <th>CGPA</th>
+                  </tr>
+                </thead>
+                <tbody id="recentStudentsTbody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Academic Performance & Quick Actions -->
+          <div style="display:flex; flex-direction:column; gap:1.5rem;">
+            <!-- CGPA Distribution -->
+            <div class="dashboard-card">
+              <div class="card-header">
+                <h3>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                  Academic Standing
+                </h3>
+              </div>
+              <div class="cgpa-bars">
+                <div class="cgpa-bar-item">
+                  <div class="bar-meta">
+                    <span class="bar-label">Distinction (≥ 8.5)</span>
+                    <span class="bar-count" id="barDistinctionCount">0</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill fill-emerald" id="barDistinctionFill" style="width: 0%;"></div>
+                  </div>
+                </div>
+
+                <div class="cgpa-bar-item">
+                  <div class="bar-meta">
+                    <span class="bar-label">First Class (7.0 - 8.4)</span>
+                    <span class="bar-count" id="barFirstCount">0</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill fill-sky" id="barFirstFill" style="width: 0%;"></div>
+                  </div>
+                </div>
+
+                <div class="cgpa-bar-item">
+                  <div class="bar-meta">
+                    <span class="bar-label">Second Class (5.5 - 6.9)</span>
+                    <span class="bar-count" id="barSecondCount">0</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill fill-amber" id="barSecondFill" style="width: 0%;"></div>
+                  </div>
+                </div>
+
+                <div class="cgpa-bar-item">
+                  <div class="bar-meta">
+                    <span class="bar-label">At Risk (&lt; 5.5)</span>
+                    <span class="bar-count" id="barRiskCount">0</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill fill-rose" id="barRiskFill" style="width: 0%;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="dashboard-card">
+              <div class="card-header">
+                <h3>Quick Management Links</h3>
+              </div>
+              <div class="quick-actions">
+                <div class="action-tile" onclick="openAddStudentModal()">
+                  <div class="tile-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                  </div>
+                  <div class="tile-details">
+                    <h5>Enroll New Student</h5>
+                    <p>Add student with Roll No & CGPA</p>
+                  </div>
+                </div>
+
+                <div class="action-tile" onclick="switchTab('lookup')">
+                  <div class="tile-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  </div>
+                  <div class="tile-details">
+                    <h5>Check Student CGPA</h5>
+                    <p>Instant Roll Number Score Card</p>
+                  </div>
+                </div>
+
+                <div class="action-tile" onclick="openAddStaffModal()">
+                  <div class="tile-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  </div>
+                  <div class="tile-details">
+                    <h5>Add Faculty Member</h5>
+                    <p>Assign teacher to subject & class</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           2. STUDENTS DIRECTORY VIEW
+           ==================================================================== -->
+      <section id="studentsView" class="view-section">
+        <div class="section-header">
+          <div class="section-title">
+            <h2>Students Directory</h2>
+            <p>Filter, search, review academic standings, and manage student enrollments.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-primary" onclick="openAddStudentModal()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Student
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="table-toolbar">
+          <div class="search-box">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="studentSearchInput" class="search-input" placeholder="Search by name or roll number...">
+          </div>
+
+          <div class="filter-group">
+            <select id="studentDeptFilter" class="select-filter">
+              <option value="">All Departments</option>
+            </select>
+
+            <select id="studentClassFilter" class="select-filter">
+              <option value="">All Classes</option>
+            </select>
+
+            <select id="studentSortSelect" class="select-filter">
+              <option value="name">Sort: Name (A-Z)</option>
+              <option value="rollNumber">Sort: Roll Number</option>
+              <option value="cgpa-desc">Sort: Highest CGPA</option>
+              <option value="cgpa-asc">Sort: Lowest CGPA</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Students Table -->
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Roll Number</th>
+                <th>Department</th>
+                <th>Classroom</th>
+                <th>CGPA</th>
+                <th style="width: 110px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="studentsTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           3. STUDENT CGPA PORTAL
+           ==================================================================== -->
+      <section id="lookupView" class="view-section">
+        <div class="section-header">
+          <div class="section-title">
+            <h2>Student CGPA & Profile Portal</h2>
+            <p>Official student academic transcript and performance verification.</p>
+          </div>
+        </div>
+
+        <!-- Search Card -->
+        <div class="cgpa-lookup-hero">
+          <div class="lookup-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          </div>
+          <h3>Verify Student CGPA</h3>
+          <p>Enter the student's institutional Roll Number to fetch their verified cumulative grade point average.</p>
+          
+          <form id="cgpaLookupForm" class="lookup-form">
+            <input type="text" id="cgpaRollInput" class="lookup-input" placeholder="e.g. CS2024-001" required>
+            <button type="submit" class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              View Record
+            </button>
+          </form>
+
+          <div style="margin-top: 1.25rem; font-size: 0.8rem; color: var(--text-dim);">
+            Try demo roll numbers: 
+            <a href="#" style="color:var(--primary); margin:0 4px; text-decoration:none;" onclick="lookupByRoll('CS2024-001'); return false;">CS2024-001</a> • 
+            <a href="#" style="color:var(--primary); margin:0 4px; text-decoration:none;" onclick="lookupByRoll('IT2024-015'); return false;">IT2024-015</a> • 
+            <a href="#" style="color:var(--primary); margin:0 4px; text-decoration:none;" onclick="lookupByRoll('CS2024-019'); return false;">CS2024-019</a>
+          </div>
+        </div>
+
+        <!-- Result Card -->
+        <div id="cgpaResultCard" class="cgpa-result-card">
+          <div class="result-card-inner">
+            <div class="result-details">
+              <div class="result-meta">
+                <span class="result-badge">Verified Record</span>
+                <span style="font-size:0.8rem; color:var(--text-muted);">Spring Semester 2026</span>
+              </div>
+              <h3 id="resStudentName">—</h3>
+              <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Roll Number: <strong id="resRollNumber" style="color:var(--text-main);">—</strong></p>
+
+              <div class="result-meta-grid">
+                <div class="meta-box">
+                  <span>Assigned Classroom</span>
+                  <strong id="resClassroom">—</strong>
+                </div>
+                <div class="meta-box">
+                  <span>Academic Department</span>
+                  <strong id="resDepartment">—</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Score Meter -->
+            <div class="score-meter">
+              <div class="score-number" id="resScoreNum">0.00</div>
+              <div class="score-max">out of 10.00 CGPA</div>
+              <div class="score-standing" id="resStanding">Distinction</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           4. FACULTY & STAFF DIRECTORY
+           ==================================================================== -->
+      <section id="staffView" class="view-section">
+        <div class="section-header">
+          <div class="section-title">
+            <h2>Faculty & Staff Directory</h2>
+            <p>Manage instructional teachers, subjects taught, classroom assignments, and management personnel.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-primary" onclick="openAddStaffModal()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Staff Member
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Toolbar -->
+        <div class="table-toolbar">
+          <div class="search-box">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="staffSearchInput" class="search-input" placeholder="Search by name or subject taught...">
+          </div>
+
+          <div class="filter-group">
+            <select id="staffRoleFilter" class="select-filter">
+              <option value="">All Roles</option>
+              <option value="TEACHER">Teachers Only</option>
+              <option value="MANAGEMENT">Management Only</option>
+            </select>
+
+            <select id="staffDeptFilter" class="select-filter">
+              <option value="">All Departments</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Staff Table -->
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Faculty / Staff</th>
+                <th>Role</th>
+                <th>Subject Taught</th>
+                <th>Department</th>
+                <th>Assigned Class</th>
+                <th style="width: 110px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="staffTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           5. DEPARTMENTS & CLASSROOMS VIEW
+           ==================================================================== -->
+      <section id="deptClassView" class="view-section">
+        <div class="section-header">
+          <div class="section-title">
+            <h2>Academic Departments & Classrooms</h2>
+            <p>Structure branches, lecture halls, and link classroom sections to departments.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-secondary" onclick="openAddDeptModal()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Department
+            </button>
+            <button class="btn btn-primary" onclick="openAddClassModal()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Classroom
+            </button>
+          </div>
+        </div>
+
+        <div class="dept-class-grid">
+          <!-- Departments Column -->
+          <div class="dashboard-card">
+            <div class="card-header">
+              <h3>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="2" width="18" height="20" rx="2" ry="2"/><line x1="9" y1="22" x2="9" y2="2"/><line x1="15" y1="22" x2="15" y2="2"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+                Academic Departments
+              </h3>
+            </div>
+            <div class="grid-card-list" id="departmentsList">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Classrooms Column -->
+          <div class="dashboard-card">
+            <div class="card-header">
+              <h3>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                Classroom Sections & Halls
+              </h3>
+            </div>
+            <div class="grid-card-list" id="classroomsList">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ========================================================================
+       MODALS
+       ======================================================================== -->
+
+  <!-- STUDENT MODAL -->
+  <div class="modal-overlay" id="studentModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="studentModalTitle">Enroll Student</h3>
+        <button class="modal-close" onclick="closeModal('studentModal')">✕</button>
+      </div>
+      <form id="studentForm">
+        <input type="hidden" id="studentIdHidden">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="studentNameInput">Full Name</label>
+            <input type="text" id="studentNameInput" class="form-control" placeholder="e.g. Aria Montgomery" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="studentRollInput">Roll Number</label>
+            <input type="text" id="studentRollInput" class="form-control" placeholder="e.g. CS2024-042" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="studentCgpaInput">Cumulative GPA (0.00 - 10.00)</label>
+            <input type="number" id="studentCgpaInput" class="form-control" step="0.01" min="0" max="10" placeholder="e.g. 8.75" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="studentClassSelect">Assigned Classroom</label>
+            <select id="studentClassSelect" class="form-control">
+              <option value="">Select Classroom</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('studentModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Student</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- STAFF MODAL -->
+  <div class="modal-overlay" id="staffModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="staffModalTitle">Add Faculty / Staff</h3>
+        <button class="modal-close" onclick="closeModal('staffModal')">✕</button>
+      </div>
+      <form id="staffForm">
+        <input type="hidden" id="staffIdHidden">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="staffNameInput">Full Name</label>
+            <input type="text" id="staffNameInput" class="form-control" placeholder="e.g. Dr. Alan Turing" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="staffRoleSelect">Role</label>
+            <select id="staffRoleSelect" class="form-control" required>
+              <option value="TEACHER">TEACHER</option>
+              <option value="MANAGEMENT">MANAGEMENT</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="staffSubjectInput">Subject Taught</label>
+            <input type="text" id="staffSubjectInput" class="form-control" placeholder="e.g. Artificial Intelligence (or leave blank for Management)">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="staffDeptSelect">Department</label>
+            <select id="staffDeptSelect" class="form-control">
+              <option value="">Select Department</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="staffClassSelect">Assigned Classroom</label>
+            <select id="staffClassSelect" class="form-control">
+              <option value="">None (For Management)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('staffModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Staff Member</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DEPARTMENT MODAL -->
+  <div class="modal-overlay" id="deptModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="deptModalTitle">Add Department</h3>
+        <button class="modal-close" onclick="closeModal('deptModal')">✕</button>
+      </div>
+      <form id="deptForm">
+        <input type="hidden" id="deptIdHidden">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="deptNameInput">Department Name</label>
+            <input type="text" id="deptNameInput" class="form-control" placeholder="e.g. Computer Science & Engineering" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('deptModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Department</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CLASSROOM MODAL -->
+  <div class="modal-overlay" id="classModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="classModalTitle">Add Classroom</h3>
+        <button class="modal-close" onclick="closeModal('classModal')">✕</button>
+      </div>
+      <form id="classForm">
+        <input type="hidden" id="classIdHidden">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="classNameInput">Classroom / Section Name</label>
+            <input type="text" id="classNameInput" class="form-control" placeholder="e.g. CSE - Hall 301" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="classDeptSelect">Associated Department</label>
+            <select id="classDeptSelect" class="form-control" required>
+              <option value="">Select Department</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('classModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Classroom</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRMATION MODAL -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal-dialog" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3>Confirm Deletion</h3>
+        <button class="modal-close" onclick="closeModal('deleteModal')">✕</button>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <div style="width:50px; height:50px; border-radius:50%; background:var(--danger-bg); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+        </div>
+        <p>Are you sure you want to permanently delete <strong id="deleteItemName" style="color:var(--text-main);">this item</strong>?</p>
+        <p class="form-hint" style="margin-top:0.5rem;">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer" style="justify-content: center;">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('deleteModal')">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Yes, Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANAGEMENT LOGIN MODAL -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal-dialog" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3>Management Authentication</h3>
+        <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
+      </div>
+      <form id="loginForm">
+        <div class="modal-body">
+          <p style="color:var(--text-muted); font-size:0.875rem; margin-bottom:1.25rem;">
+            Authenticate with the management security key to unlock write and delete privileges across the institution.
+          </p>
+          <div class="form-group">
+            <label class="form-label" for="loginPasswordInput">Security Password</label>
+            <input type="password" id="loginPasswordInput" class="form-control" placeholder="Enter management password" required>
+            <div class="form-hint">Default password: <code>admin123</code> (configured in application.properties)</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('loginModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Unlock Privileges</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CONNECTION SETTINGS MODAL -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Backend API & Connection Settings</h3>
+        <button class="modal-close" onclick="closeModal('settingsModal')">✕</button>
+      </div>
+      <form id="settingsForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="settingsApiBase">REST API Base Endpoint</label>
+            <input type="text" id="settingsApiBase" class="form-control" placeholder="http://localhost:8080/api" required>
+            <div class="form-hint">Default is <code>http://localhost:8080/api</code> (or <code>/api</code> when hosted inside Spring Boot).</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="settingsRoleHeader">Role Header for Authorization</label>
+            <input type="text" id="settingsRoleHeader" class="form-control" value="MANAGEMENT" required>
+            <div class="form-hint">Sent as <code>role: MANAGEMENT</code> in HTTP headers for Spring Boot controller security.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('settingsModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Test & Apply</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- SCRIPTS -->
+  <script src="js/app.js"></script>
+</body>
+</html>
